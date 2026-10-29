@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('return_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('loan_id')->unique()->constrained('loans')->onDelete('cascade');
+            $table->foreignId('loan_id')->unique()->constrained('loans')->restrictOnDelete();
             $table->date('returned_at');
             $table->enum('condition_on_return', ['baik', 'rusak ringan', 'rusak berat']);
             $table->text('notes')->nullable();

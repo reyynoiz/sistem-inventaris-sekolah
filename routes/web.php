@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LoanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,10 +20,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-//User harus login untuk mengakses route kategori dan barang
-Route::middleware(['auth'])->group(function () {
+// Khusus Admin: Kategori dan Barang
+Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('items', ItemController::class);
+});
+
+// Admin & Peminjam: Transaksi Peminjaman
+Route::middleware(['auth'])->group(function () {
+    Route::resource('loans', LoanController::class);
+    Route::patch('/loans/{loan}/return', [LoanController::class, 'returnItem'])->name('loans.return');
 });
 
 require __DIR__.'/auth.php';

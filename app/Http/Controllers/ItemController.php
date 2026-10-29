@@ -2,63 +2,59 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Item;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $items = Item::with('category')->get();
+        return view('items.index', compact('items'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $categories = Category::all();
+        return view('items.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:50|unique:items,code',
+            'stock' => 'required|integer|min:0',
+            'condition' => 'required|in:baik,rusak ringan,rusak berat',
+        ]);
+        Item::create($request->all());
+        return redirect()->route('items.index')->with('success', 'Barang berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(Item $item)
     {
-        //
+        $categories = Category::all();
+        return view('items.edit', compact('item', 'categories'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, Item $item)
     {
-        //
+        $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:50|unique:items,code,' . $item->id,
+            'stock' => 'required|integer|min:0',
+            'condition' => 'required|in:baik,rusak ringan,rusak berat',
+        ]);
+        $item->update($request->all());
+        return redirect()->route('items.index')->with('success', 'Barang berhasil diperbarui.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Item $item)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $item->delete(); // Ini akan melakukan soft delete sesuai pengaturan model kita sebelumnya
+        return redirect()->route('items.index')->with('success', 'Barang berhasil dihapus.');
     }
 }

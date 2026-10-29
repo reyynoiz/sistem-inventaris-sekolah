@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('loans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('item_id')->constrained('items')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
+            $table->foreignId('item_id')->constrained('items')->restrictOnDelete();
             $table->integer('quantity');
             $table->date('loan_date');
             $table->date('due_date');

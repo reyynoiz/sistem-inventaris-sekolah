@@ -12,6 +12,11 @@ class ReturnLog extends Model
 
     protected $guarded = ['id'];
 
+    protected function casts(): array
+    {
+        return ['return_date' => 'date'];
+    }
+
     public function loan()
     {
         return $this->belongsTo(Loan::class);
