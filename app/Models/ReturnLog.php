@@ -14,7 +14,7 @@ class ReturnLog extends Model
 
     protected function casts(): array
     {
-        return ['return_date' => 'date'];
+        return ['returned_at' => 'date'];
     }
 
     public function loan()

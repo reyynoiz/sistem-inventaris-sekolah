@@ -15,4 +15,14 @@ class ActivityLog extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    //Catat aktivitas oleh pengguna yang sedang login
+    public static function record(string $action, string $description): self
+    {
+        return static::create([
+            'user_id' => auth()->id(),
+            'action' => $action,
+            'description' => $description,
+        ]);
+    }
 }

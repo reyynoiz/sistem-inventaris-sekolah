@@ -15,17 +15,18 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    
-                    @if(Auth::user()->role === 'admin')
+
+                    @if (Auth::user()->role === 'admin')
                         <x-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">
                             {{ __('Kategori') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('items.index')" :active="request()->routeIs('items.*')">
-                            {{ __('Barang') }}
-                        </x-nav-link>
                     @endif
-                    
-                    <x-nav-link :href="route('loans.index')" :active="request()->routeIs('loans.*')">
+
+                    <x-nav-link :href="route('items.index')" :active="request()->routeIs('items.*')">
+                        {{ __('Barang') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('loans.index')" :active="request()->routeIs('loans.*', 'returns.*')">
                         {{ __('Peminjaman') }}
                     </x-nav-link>
                 </div>
@@ -83,17 +84,18 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            
-            @if(Auth::user()->role === 'admin')
+
+            @if (Auth::user()->role === 'admin')
                 <x-responsive-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">
                     {{ __('Kategori') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('items.index')" :active="request()->routeIs('items.*')">
-                    {{ __('Barang') }}
-                </x-responsive-nav-link>
             @endif
-            
-            <x-responsive-nav-link :href="route('loans.index')" :active="request()->routeIs('loans.*')">
+
+            <x-responsive-nav-link :href="route('items.index')" :active="request()->routeIs('items.*')">
+                {{ __('Barang') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('loans.index')" :active="request()->routeIs('loans.*', 'returns.*')">
                 {{ __('Peminjaman') }}
             </x-responsive-nav-link>
         </div>

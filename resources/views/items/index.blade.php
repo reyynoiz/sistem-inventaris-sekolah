@@ -1,45 +1,81 @@
+@php $isAdmin = auth()->user()->isAdmin(); @endphp
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Data Barang</h2>
+        <x-breadcrumb :items="['Barang' => null]" />
+        <div class="mt-1 flex items-center justify-between">
+            <h2 class="text-xl font-semibold text-gray-800">Data barang</h2>
+            @if ($isAdmin)
+                <x-btn :href="route('items.create')">Tambah barang</x-btn>
+            @endif
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <a href="{{ route('items.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 inline-block">Tambah Barang</a>
-                
-                <table class="w-full mt-4 border-collapse border border-gray-300">
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th class="border p-2">Kode</th>
-                            <th class="border p-2">Nama Barang</th>
-                            <th class="border p-2">Kategori</th>
-                            <th class="border p-2">Stok</th>
-                            <th class="border p-2">Kondisi</th>
-                            <th class="border p-2">Aksi</th>
+    <div class="py-6">
+        <div class="mx-auto max-w-7xl space-y-4 px-4 sm:px-6 lg:px-8">
+            <x-flash />
+
+            <form method="GET" class="flex flex-wrap gap-2">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama atau kode" autofocus
+                       class="rounded-md border-gray-300 text-sm shadow-sm focus:border-gray-500 focus:ring-gray-500">
+                <select name="category" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-gray-500 focus:ring-gray-500">
+                    <option value="">Semua kategori</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}" @selected(request('category') == $category->id)>{{ $category->name }}</option>
+                    @endforeach
+                </select>
+                <select name="condition" class="rounded-md border-gray-300 text-sm shadow-sm focus:border-gray-500 focus:ring-gray-500">
+                    <option value="">Semua kondisi</option>
+                    @foreach (['baik', 'rusak ringan', 'rusak berat'] as $condition)
+                        <option value="{{ $condition }}" @selected(request('condition') === $condition)>{{ ucfirst($condition) }}</option>
+                    @endforeach
+                </select>
+                <x-btn variant="light">Terapkan</x-btn>
+            </form>
+
+            <div class="overflow-x-auto rounded-md bg-white shadow-sm">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50 text-left text-gray-600">
+                        <tr>
+                            <th class="px-4 py-3 font-medium">Kode</th>
+                            <th class="px-4 py-3 font-medium">Nama barang</th>
+                            <th class="px-4 py-3 font-medium">Kategori</th>
+                            <th class="px-4 py-3 font-medium">Stok</th>
+                            <th class="px-4 py-3 font-medium">Kondisi</th>
+                            @if ($isAdmin)
+                                <th class="px-4 py-3 font-medium">Aksi</th>
+                            @endif
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach ($items as $item)
-                        <tr>
-                            <td class="border p-2 text-center">{{ $item->code }}</td>
-                            <td class="border p-2">{{ $item->name }}</td>
-                            <td class="border p-2">{{ $item->category->name ?? '-' }}</td>
-                            <td class="border p-2 text-center">{{ $item->stock }}</td>
-                            <td class="border p-2 text-center capitalize">{{ $item->condition }}</td>
-                            <td class="border p-2 text-center">
-                                <a href="{{ route('items.edit', $item->id) }}" class="text-blue-500 mr-2">Edit</a> 
-                                <form action="{{ route('items.destroy', $item->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-500" onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
-                               </form>
-                            </td>
-                        </tr>
-                        @endforeach
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse ($items as $item)
+                            <tr>
+                                <td class="px-4 py-3 font-mono text-xs">{{ $item->code }}</td>
+                                <td class="px-4 py-3">{{ $item->name }}</td>
+                                <td class="px-4 py-3">{{ $item->category->name ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ number_format($item->stock, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3">{{ ucfirst($item->condition) }}</td>
+                                @if ($isAdmin)
+                                    <td class="flex gap-2 px-4 py-3">
+                                        <x-btn variant="light" :href="route('items.edit', $item)">Ubah</x-btn>
+                                        <form method="POST" action="{{ route('items.destroy', $item) }}"
+                                              onsubmit="return confirm('Hapus barang {{ $item->name }}?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-btn variant="danger">Hapus</x-btn>
+                                        </form>
+                                    </td>
+                                @endif
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="{{ $isAdmin ? 6 : 5 }}" class="px-4 py-6 text-center text-gray-500">Tidak ada barang yang cocok. Coba ubah kata kunci atau filter.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
+
+            {{ $items->links() }}
         </div>
     </div>
 </x-app-layout>
