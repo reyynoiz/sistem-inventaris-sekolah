@@ -6,6 +6,7 @@ use App\Http\Controllers\LoanController;
 use App\Http\Controllers\ReturnLogController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,6 +34,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/loans/{loan}/return', [ReturnLogController::class, 'create'])->name('returns.create');
     Route::post('/loans/{loan}/return', [ReturnLogController::class, 'store'])->name('returns.store');
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+    Route::resource('users', UserController::class)->except('show');
 });
 
 require __DIR__.'/auth.php';

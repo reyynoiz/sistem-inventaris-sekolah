@@ -11,6 +11,9 @@
         'delete_item' => 'Hapus barang',
         'create_loan' => 'Peminjaman',
         'return_loan' => 'Pengembalian',
+        'create_user' => 'Tambah akun',
+        'update_user' => 'Ubah akun',
+        'delete_user' => 'Hapus akun',
     ];
     $tone = fn ($action) => match (true) {
         str_starts_with($action, 'delete') => 'bg-red-100 text-red-800',

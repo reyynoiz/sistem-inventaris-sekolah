@@ -29,7 +29,11 @@
                     <x-nav-link :href="route('loans.index')" :active="request()->routeIs('loans.*', 'returns.*')">
                         {{ __('Peminjaman') }}
                     </x-nav-link>
+
                     @if (Auth::user()->role === 'admin')
+                        <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                            {{ __('Pengguna') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('activity-logs.index')" :active="request()->routeIs('activity-logs.*')">
                             {{ __('Log Aktivitas') }}
                         </x-nav-link>
@@ -103,7 +107,11 @@
             <x-responsive-nav-link :href="route('loans.index')" :active="request()->routeIs('loans.*', 'returns.*')">
                 {{ __('Peminjaman') }}
             </x-responsive-nav-link>
+
             @if (Auth::user()->role === 'admin')
+                <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                    {{ __('Pengguna') }}
+                </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('activity-logs.index')" :active="request()->routeIs('activity-logs.*')">
                     {{ __('Log Aktivitas') }}
                 </x-responsive-nav-link>
