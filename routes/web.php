@@ -7,15 +7,14 @@ use App\Http\Controllers\ReturnLogController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', DashboardController::class)->middleware(['auth', 'verified'])->name('dashboard');
 
 // Admin & User
 Route::middleware('auth')->group(function () {
