@@ -14,6 +14,8 @@
         'create_user' => 'Tambah akun',
         'update_user' => 'Ubah akun',
         'delete_user' => 'Hapus akun',
+        'update_photo' => 'Ubah foto profil',
+        'delete_photo' => 'Hapus foto profil',
     ];
     $tone = fn ($action) => match (true) {
         str_starts_with($action, 'delete') => 'bg-red-100 text-red-800',

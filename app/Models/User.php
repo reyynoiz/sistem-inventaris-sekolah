@@ -50,6 +50,11 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+    
+    public function getPhotoUrlAttribute(): ?string
+{
+    return $this->photo ? asset('storage/'.$this->photo) : null;
+}
 
     // Relasi dengan model Loan dan ActivityLog
     public function loans()
