@@ -45,7 +45,7 @@
                                     <x-input-label for="photo">
                                         {{ __('Pilih foto baru') }} <span class="text-red-500">*</span>
                                     </x-input-label>
-                                    <input id="photo" name="photo" type="file" required
+                                    <input id="photo" name="photo" type="file" required autofocus
                                            accept="image/jpeg,image/png,image/webp"
                                            @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null"
                                            class="mt-1 block w-full text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-gray-800 file:px-3 file:py-2 file:text-xs file:font-semibold file:uppercase file:tracking-widest file:text-white hover:file:bg-gray-700">
@@ -118,7 +118,7 @@
                                     </dd>
                                 </div>
 
-                                <!-- Placeholder Trust Score (TTU) -->
+                                <!-- Placeholder Trust Score -->
                                 <div>
                                     <dt class="font-medium text-gray-700">Trust Score</dt>
                                     <dd class="mt-1 flex items-center">
@@ -132,7 +132,6 @@
                 </div>
             </div>
 
-            <!-- Bawaan Breeze (tidak diubah) -->
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <div class="max-w-xl">
                     @include('profile.partials.update-profile-information-form')
