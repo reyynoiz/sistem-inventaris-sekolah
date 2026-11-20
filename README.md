@@ -1,66 +1,55 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Inventaris Sekolah
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web untuk mencatat barang inventaris sekolah, peminjamannya, dan pengembaliannya secara terpusat. Dibuat sebagai proyek fullstack Gamelab dengan Laravel 11.
 
-## About Laravel
+**Pembuat:** Rois Dhanys Riyansyah
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Daftar isi
+- [Fitur](#fitur)
+- [Teknologi](#teknologi)
+- [Instalasi](#instalasi)
+- [Akun seeder](#akun-seeder)
+- [Struktur database](#struktur-database)
+- [Aturan bisnis](#aturan-bisnis)
+- [Menjalankan tes](#menjalankan-tes)
+- [Konvensi kode](#konvensi-kode)
+- [Pemecahan masalah](#pemecahan-masalah)
+- [Rencana pengembangan](#rencana-pengembangan)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Fitur
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Admin
+- **Dashboard ringkasan:** total barang, total stok, sedang dipinjam, terlambat, barang paling sering dipinjam, pengguna paling aktif, dan daftar peminjaman terlambat.
+- **Kelola kategori dan barang:** (kode unik, stok, kondisi, foto barang, soft delete) dengan pencarian, filter, dan pagination.
+- **Manajemen Peminjaman:** Tambah peminjaman atas nama pengguna lain, dan catat pengembalian lengkap dengan tanggal, kondisi barang, dan catatan.
+- **Kelola akun pengguna:** beserta role.
+- **Activity Log:** Lihat jejak aktivitas dengan pencarian dan filter jenis aksi.
 
-## Learning Laravel
+### User (Guru atau Siswa)
+- **Dashboard pribadi:** jumlah peminjaman aktif, terlambat, dan total, plus peminjaman terakhir.
+- **Katalog Barang:** Melihat daftar barang beserta fotonya.
+- **Peminjaman Mandiri:** Meminjam barang atas nama sendiri, dan melihat riwayat peminjaman sendiri.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Semua Pengguna
+- **Login dan registrasi** (Laravel Breeze). Akun baru selalu berperan user.
+- **Halaman profil:** foto profil, nama dan email, ubah password.
+- **Navigasi Dinamis:** Menu dan halaman menyesuaikan role.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Teknologi
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Bagian | Yang dipakai |
+|---|---|
+| **Framework** | Laravel 11 (PHP 8.2) |
+| **Tampilan** | Blade, Tailwind CSS, Alpine.js, Vite |
+| **Autentikasi** | Laravel Breeze (stack Blade) |
+| **Database** | MySQL |
+| **Pengujian** | PHPUnit (Unit dan Feature test, SQLite di memori) |
 
-## Laravel Sponsors
+## Instalasi
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**Prasyarat:** PHP 8.2 atau lebih baru (ekstensi gd), Composer, Node.js dan npm, serta MySQL (misalnya dari XAMPP).
 
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Clone repositori dan masuk ke folder proyek:
+   ```bash
+   git clone <url-repository-ini>
+   cd sistem-inventaris-sekolah
