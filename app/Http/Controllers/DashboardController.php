@@ -22,12 +22,12 @@ class DashboardController extends Controller
                 'borrowed' => Loan::active()->count(),
                 'overdue' => Loan::where('status', 'terlambat')->count(),
                 'topItems' => Item::withCount('loans')
-                    ->having('loans_count', '>', 0)
+                    ->whereHas('loans')
                     ->orderByDesc('loans_count')
                     ->take(5)
                     ->get(),
                 'topUsers' => User::withCount('loans')
-                    ->having('loans_count', '>', 0)
+                    ->whereHas('loans')
                     ->orderByDesc('loans_count')
                     ->take(5)
                     ->get(),
