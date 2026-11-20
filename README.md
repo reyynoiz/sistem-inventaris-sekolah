@@ -53,3 +53,173 @@ Aplikasi web untuk mencatat barang inventaris sekolah, peminjamannya, dan pengem
    ```bash
    git clone <url-repository-ini>
    cd sistem-inventaris-sekolah
+   ```
+
+2. Instal dependensi PHP dan Node.js:
+   ```bash
+   composer install
+   npm install
+   ```
+
+3. Siapkan file environment:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. Buat database kosong di MySQL, misalnya `db_inventaris` (lewat phpMyAdmin atau `CREATE DATABASE db_inventaris CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`). Lalu sesuaikan file `.env`:
+   ```env
+   APP_LOCALE=id
+   APP_TIMEZONE=Asia/Jakarta
+
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=db_inventaris
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+   > **Catatan:** `APP_LOCALE=id` membuat nama bulan tampil dalam bahasa Indonesia, dan `APP_TIMEZONE=Asia/Jakarta` membuat jam di Activity Log sesuai WIB.
+
+5. Jalankan migrasi, seeder, dan tautan penyimpanan foto:
+   ```bash
+   php artisan migrate --seed
+   php artisan storage:link
+   ```
+
+6. Jalankan aplikasi di dua terminal terpisah:
+   ```bash
+   # Terminal 1: Compile aset frontend
+   npm run dev
+   
+   # Terminal 2: Jalankan server lokal
+   php artisan serve
+   ```
+   Buka `[http://127.0.0.1:8000](http://127.0.0.1:8000)` di browser. Setiap kali ada file migration baru, jalankan `php artisan migrate` sebelum mencoba fiturnya.
+
+## Akun seeder
+
+| Role | Email | Password |
+|---|---|---|
+| **Admin** | admin@sekolah.com | admin1234 |
+| **User** | siswa@sekolah.com | siswa1234 |
+| **User** | budi@sekolah.com | budi1234 |
+
+> **Peringatan:** Ganti semua password ini bila aplikasi dipasang di luar lingkungan belajar.
+
+Data contoh yang ikut dibuat saat seeding: 4 kategori, 10 barang, 5 peminjaman (1 dipinjam, 1 terlambat, 3 dikembalikan), 3 catatan pengembalian, dan beberapa catatan Activity Log. 
+Untuk mengembalikan data ke kondisi awal, jalankan `php artisan migrate:fresh --seed` (akan menghapus seluruh data).
+
+## Struktur database
+
+Terdiri dari enam tabel utama:
+
+| Tabel | Isi | Catatan |
+|---|---|---|
+| `users` | Akun, role (admin atau user), foto profil | |
+| `categories` | Kategori barang | |
+| `items` | Barang: kategori, nama, kode unik, stok, kondisi, foto | Soft delete |
+| `loans` | Peminjaman: peminjam, barang, jumlah, tanggal pinjam, tenggat, status | Soft delete |
+| `return_logs` | Detail pengembalian: tanggal, kondisi saat kembali, catatan | Soft delete, satu per peminjaman |
+| `activity_logs` | Jejak aktivitas: pengguna, jenis aksi, deskripsi | |
+
+**Relasi antar tabel:**
+- `categories` 1 ke banyak `items`
+- `users` 1 ke banyak `loans`
+- `items` 1 ke banyak `loans`
+- `loans` 1 ke 1 `return_logs` (kolom `loan_id` bersifat unik)
+- `users` 1 ke banyak `activity_logs`
+
+Kunci asing (*foreign key*) memakai `restrict` agar data yang masih dipakai tidak terhapus berantai. Pada `activity_logs`, penghapusan akun hanya mengosongkan kolom `user_id`, sehingga jejak riwayat tetap ada.
+
+## Aturan bisnis
+
+- Stok berkurang saat peminjaman dicatat dan bertambah saat pengembalian dicatat. Keduanya berjalan dalam satu transaksi database dengan penguncian baris (*row locking*), sehingga dua peminjaman bersamaan tidak bisa menembus limit stok.
+- Status "terlambat" diperbarui otomatis saat halaman dashboard atau peminjaman dibuka bagi peminjaman yang melewati tenggat waktu.
+- Pengembalian hanya bisa dicatat sekali per peminjaman, baik untuk status "dipinjam" maupun "terlambat".
+- Peminjaman oleh User langsung tercatat dan mengurangi stok. (Belum ada langkah persetujuan Admin).
+- **Pembatasan penghapusan:**
+  - Kategori yang masih dipakai barang tidak bisa dihapus (termasuk barang yang sudah di-soft-delete).
+  - Barang yang masih dipinjam tidak bisa dihapus.
+  - Akun yang sedang dipakai dan akun yang punya riwayat peminjaman tidak bisa dihapus lewat menu Pengguna.
+  - Admin tidak bisa menurunkan role akunnya sendiri.
+  - Admin dan akun yang punya riwayat peminjaman tidak bisa menghapus akun sendiri lewat halaman profil.
+- **Foto (barang dan profil):** Format JPG, PNG, atau WebP, maksimal 2 MB, minimal 100 x 100 piksel. Isi file diperiksa di server, nama file diacak, dan foto lama dihapus secara otomatis saat diganti.
+- **Activity Log:** Mencatat operasi tambah, ubah, hapus (kategori, barang, pengguna), peminjaman, pengembalian, perubahan foto profil, serta aktivitas login, logout, dan registrasi.
+- **Tampilan:** Angka menggunakan pemisah ribuan dan tanggal berformat bahasa Indonesia (misalnya `1 Feb 2026`).
+
+## Menjalankan tes
+
+Jalankan seluruh tes dengan perintah:
+```bash
+php artisan test
+```
+Tes berjalan menggunakan **SQLite di memori**, sehingga database MySQL tidak akan tersentuh. 
+
+**Syarat menjalankan tes:**
+- Ekstensi PHP `pdo_sqlite` dan `gd` harus aktif.
+- Di dalam file `phpunit.xml`, pastikan dua baris ini tidak dikomentari:
+  ```xml
+  <env name="DB_CONNECTION" value="sqlite"/>
+  <env name="DB_DATABASE" value=":memory:"/>
+  ```
+> *Kelas dasar `tests/TestCase.php` diatur untuk menghentikan tes lebih dulu bila dua baris di atas belum aktif, agar database pengembangan tidak terhapus.*
+
+**Cakupan tes meliputi:**
+- **Unit:** model (relasi, scope, status terlambat, soft delete, accessor foto, hash password), pencatat Activity Log, dan kelas penghitung skor reputasi.
+- **Feature:** kontrol akses semua halaman per role, CRUD kategori dan barang, alur peminjaman dan pengembalian, manajemen pengguna, Activity Log, dashboard per role, serta profil.
+
+Jalankan sebagian tes dengan spesifik:
+```bash
+php artisan test --testsuite=Unit
+php artisan test --testsuite=Feature
+php artisan test --filter=NamaTes
+```
+
+## Konvensi kode
+
+- Nama tabel *plural snake_case*, model *singular PascalCase*, controller berakhiran `Controller`, dan seluruh penamaan file/route/model/controller memakai bahasa Inggris.
+- Relasi murni memakai *Eloquent Relationship*, tanpa JOIN manual.
+- Validasi memakai *Form Request* (`app/Http/Requests`).
+- Akses halaman Admin dijaga oleh middleware `role:admin`.
+- View Blade dikelompokkan per folder (`items/`, `loans/`, dsb) dengan komponen bersama di `resources/views/components` (breadcrumb, pesan flash, tombol, kolom form, kartu statistik, avatar, foto barang).
+
+**Struktur Direktori Ringkas:**
+```text
+app/
+  Http/Controllers/     # Category, Item, Loan, ReturnLog, User, ActivityLog, Dashboard, Profile
+  Http/Middleware/      # RoleMiddleware
+  Http/Requests/        # Form Request tiap formulir
+  Models/               # User, Category, Item, Loan, ReturnLog, ActivityLog
+  Services/             # ReputationScorer
+database/
+  migrations/ 
+  seeders/
+resources/
+  views/                # layouts (sidebar), components, dan folder per modul
+routes/
+  web.php
+tests/                  # Unit dan Feature
+```
+
+## Pemecahan masalah
+
+| Gejala | Penyebab dan Solusi |
+|---|---|
+| `SQLSTATE[HY000] [2002] ... actively refused it` | MySQL belum menyala. Jalankan MySQL di XAMPP, lalu ulangi. |
+| `Unknown column '...' in 'field list'` | Ada migration yang belum dijalankan. Jalankan `php artisan migrate:status`, lalu `php artisan migrate`. |
+| Foto tidak tampil | Tautan penyimpanan belum dibuat. Jalankan `php artisan storage:link`. |
+| *Vite manifest not found* atau tampilan rusak | Jalankan `npm run dev`, atau `npm run build` untuk produksi. |
+| Perubahan pada file Blade tidak terlihat | Jalankan `php artisan view:clear`, lalu muat ulang browser. |
+| Tes berhenti dengan pesan database pengembangan | Buka komentar `DB_CONNECTION` dan `DB_DATABASE` di `phpunit.xml`. |
+
+> **Catatan untuk produksi:** setel `APP_DEBUG=false`, jangan pernah memasukkan `.env` ke Git, dan ganti seluruh password akun seeder.
+
+## Rencana pengembangan
+
+Ide di luar spesifikasi minimum yang dapat ditambahkan:
+- [ ] Langkah persetujuan Admin sebelum peminjaman dianggap resmi, dengan pencatatan kondisi awal barang dan foto bukti.
+- [ ] Skor reputasi peminjam (*Beta Reputation System*) yang menentukan batas pinjam secara bertingkat, lengkap dengan *time decay* dan pembedaan kerusakan wajar vs lalai.
+- [ ] Notifikasi saat mendekati tenggat.
+- [ ] Ekspor laporan ke PDF atau Excel.
+- [ ] Grafik tren peminjaman di dashboard.
