@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -39,7 +40,14 @@ class ItemController extends Controller
 
     public function store(ItemRequest $request)
     {
-        $item = Item::create($request->validated());
+        $data = $request->safe()->except(['photo', 'remove_photo']);
+
+        if ($request->hasFile('photo')) {
+            // Nama file diacak otomatis oleh Laravel
+            $data['photo'] = $request->file('photo')->store('item-photos', 'public');
+        }
+
+        $item = Item::create($data);
         ActivityLog::record('create_item', "Menambah barang {$item->name} ({$item->code})");
 
         return redirect()->route('items.index')->with('success', 'Barang berhasil ditambahkan.');
@@ -55,7 +63,19 @@ class ItemController extends Controller
 
     public function update(ItemRequest $request, Item $item)
     {
-        $item->update($request->validated());
+        $data = $request->safe()->except(['photo', 'remove_photo']);
+
+        if ($request->hasFile('photo')) {
+            if ($item->photo) {
+                Storage::disk('public')->delete($item->photo);
+            }
+            $data['photo'] = $request->file('photo')->store('item-photos', 'public');
+        } elseif ($request->boolean('remove_photo') && $item->photo) {
+            Storage::disk('public')->delete($item->photo);
+            $data['photo'] = null;
+        }
+
+        $item->update($data);
         ActivityLog::record('update_item', "Mengubah barang {$item->name} ({$item->code})");
 
         return redirect()->route('items.index')->with('success', 'Barang berhasil diperbarui.');
@@ -68,7 +88,8 @@ class ItemController extends Controller
             return back()->with('error', 'Barang masih dipinjam. Catat pengembaliannya dulu sebelum menghapus.');
         }
 
-        $item->delete(); // soft delete
+        // Soft delete: fotonya sengaja dipertahankan agar riwayat peminjaman tetap utuh
+        $item->delete();
         ActivityLog::record('delete_item', "Menghapus barang {$item->name} ({$item->code})");
 
         return redirect()->route('items.index')->with('success', 'Barang berhasil dihapus.');

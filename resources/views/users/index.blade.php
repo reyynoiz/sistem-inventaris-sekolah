@@ -52,7 +52,7 @@
                                 <td class="flex gap-2 px-4 py-3">
                                     <x-btn variant="light" :href="route('users.edit', $user)">Ubah</x-btn>
                                     <form method="POST" action="{{ route('users.destroy', $user) }}"
-                                          onsubmit="return confirm('Hapus akun {{ $user->name }}?')">
+                                          onsubmit="return confirm(@js('Hapus akun '.$user->name.'?'))"
                                         @csrf
                                         @method('DELETE')
                                         <x-btn variant="danger">Hapus</x-btn>

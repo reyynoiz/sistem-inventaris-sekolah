@@ -10,6 +10,7 @@ class Item extends Model
 {
     //
     use HasFactory, SoftDeletes;
+
     protected $guarded = ['id'];
 
     public function category()
@@ -20,5 +21,10 @@ class Item extends Model
     public function loans()
     {
         return $this->hasMany(Loan::class);
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        return $this->photo ? asset('storage/'.$this->photo) : null;
     }
 }

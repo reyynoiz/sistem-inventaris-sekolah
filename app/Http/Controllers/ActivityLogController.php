@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class ActivityLogController extends Controller
 {
+    // Menampilkan daftar jejak aktivitas (Activity Log) dengan fitur pencarian dan filter berdasarkan jenis aksi
     public function index(Request $request)
     {
         $logs = ActivityLog::with('user')

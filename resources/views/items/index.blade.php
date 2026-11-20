@@ -50,7 +50,18 @@
                         @forelse ($items as $item)
                             <tr>
                                 <td class="px-4 py-3 font-mono text-xs">{{ $item->code }}</td>
-                                <td class="px-4 py-3">{{ $item->name }}</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-3">
+                                        @if ($item->photo_url)
+                                            <a href="{{ $item->photo_url }}" target="_blank" rel="noopener" aria-label="Lihat foto {{ $item->name }}">
+                                                <x-item-photo :item="$item" />
+                                            </a>
+                                        @else
+                                            <x-item-photo :item="$item" />
+                                        @endif
+                                        <span>{{ $item->name }}</span>
+                                    </div>
+                                </td>
                                 <td class="px-4 py-3">{{ $item->category->name ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ number_format($item->stock, 0, ',', '.') }}</td>
                                 <td class="px-4 py-3">{{ ucfirst($item->condition) }}</td>
@@ -58,7 +69,7 @@
                                     <td class="flex gap-2 px-4 py-3">
                                         <x-btn variant="light" :href="route('items.edit', $item)">Ubah</x-btn>
                                         <form method="POST" action="{{ route('items.destroy', $item) }}"
-                                              onsubmit="return confirm('Hapus barang {{ $item->name }}?')">
+                                             onsubmit="return confirm(@js('Hapus barang '.$item->name.'?'))"
                                             @csrf
                                             @method('DELETE')
                                             <x-btn variant="danger">Hapus</x-btn>

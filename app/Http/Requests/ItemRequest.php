@@ -25,6 +25,8 @@ class ItemRequest extends FormRequest
             ],
             'stock' => ['required', 'integer', 'min:0'],
             'condition' => ['required', Rule::in(['baik', 'rusak ringan', 'rusak berat'])],
+            'photo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:min_width=100,min_height=100'],
+            'remove_photo' => ['nullable', 'boolean'],
         ];
     }
 
@@ -36,6 +38,7 @@ class ItemRequest extends FormRequest
             'code' => 'kode barang',
             'stock' => 'stok',
             'condition' => 'kondisi',
+            'photo' => 'foto barang',
         ];
     }
 }
